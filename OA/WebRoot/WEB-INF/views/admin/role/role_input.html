@@ -1,0 +1,222 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑角色</title>
+    <link href="/common/hplus/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/common/hplus/css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="/common/hplus/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="/common/hplus/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link href="/common/hplus/css/animate.css" rel="stylesheet">
+    <link href="/common/hplus/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="/common/hplus/css/plugins/jsTree/style.min.css" rel="stylesheet">
+    
+    <script charset="utf-8" src="/common/hplus/js/jquery.min.js"></script>
+    <script src="/common/hplus/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="/common/hplus/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="/common/hplus/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+    <script src="/common/hplus/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script src="/common/hplus/js/plugins/iCheck/icheck.min.js"></script>
+    <script src="/common/hplus/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="/common/hplus/js/plugins/validate/messages_zh.min.js"></script>
+    <script src="/common/hplus/js/plugins/jsTree/jstree.min.js"></script>
+    
+    <script charset="utf-8" src="/template/admin/js/sysUtils.js"></script>
+    <script charset="utf-8" src="/template/admin/js/template-web.js"></script>
+
+</head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content animated fadeInRight">
+		<div class="ibox float-e-margins">
+	        <div class="ibox-title">
+	            <h5>编辑角色</h5>
+	        </div>
+	        <div class="ibox-content">
+	            <form action="" method="post" class="form-horizontal">
+	            	<input type="hidden" name="jsid" value="<#if data??>${data.jsid}</#if>">
+	                <div class="form-group">
+	                    <label class="col-sm-2 control-label">角色名称</label>
+	                    <div class="col-sm-4">
+	                        <input type="text" class="form-control" name="mc" value="<#if data??>${data.mc}</#if>" placeholder="输入角色名称" required>
+	                    </div>
+	                </div>
+	                <div class="hr-line-dashed"></div>
+	                <div class="form-group">
+         	            <label class="col-sm-2 control-label">是否显示</label>
+         	            <div class="col-sm-10">
+	     	                <div class="radio i-checks">
+	                            <label><input type="radio" value="1" name="sfxs" > <i></i>显示</label>
+	                        </div>
+	                        <div class="radio i-checks">
+	                            <label><input type="radio" value="0" name="sfxs" > <i></i>隐藏</label>
+	                        </div>
+                        </div>
+	                </div>
+	                <div class="hr-line-dashed"></div>
+	                <div class="form-group">
+	                	<label class="col-sm-2 control-label">权限设置</label>
+	                	<div class="col-sm-10">
+	                		<div id="roleinput-menus"></div>
+	                	</div>
+	                </div>
+	                <div class="hr-line-dashed"></div>
+	                <div class="form-group">
+	                    <div class="col-sm-4 col-sm-offset-2">
+	                        <button class="btn btn-primary" type="submit">保存内容</button>
+	                        <button class="btn btn-white" type="button" onclick="roleinput_back()">返回</button>
+	                    </div>
+	                </div>
+	            </form>
+	        </div>
+	    </div>
+    </div>
+<script type="text/javascript">
+
+	jscdids = "<#if jscdids??>${jscdids}</#if>";
+	
+	var lenFor = function(str){  
+	    var byteLen = 0, len = str.length;  
+	    if (str){  
+	        for(var i = 0; i < len; i++){  
+	            if (str.charCodeAt(i) > 255){  
+	                byteLen += 2;  
+	            } else {  
+	                byteLen++;  
+	            }  
+	        }  
+	        return byteLen;  
+	    } else {  
+	        return 0;  
+	    }  
+	} 
+	
+    $('.i-checks').iCheck({
+        checkboxClass: 'icheckbox_square-green',
+        radioClass: 'iradio_square-green'
+    });
+    
+    var menus = {};
+    var jsid = $("input[name = jsid]").val();
+    $('#roleinput-menus').jstree({
+		plugins: ['checkbox'], 
+		'checkbox': {
+             'keep_selected_style': false,//是否默认选中
+             'three_state': true //父子级别级联选择
+         },
+         'core': {
+         	 'check_callback': true,
+             'data': function(obj, callback) {
+             	var jsonarray = [];
+                $.ajax({
+                    type : 'POST',
+                    url : '/admin/role.do?menu&&jsid=' + jsid,
+                    dataType : 'json',
+                    async : false,
+                    success : function(datas) {
+                        for(var i = 0 ; i < datas.length; i++) {
+                            var arr = {
+                            	'id' : datas[i].xtcdid,
+                                'parent' : datas[i].sjxtcdid === '' || datas[i].sjxtcdid === null ? '#' : datas[i].sjxtcdid,
+                                'text' : datas[i].mc,
+                                'state' : {
+                                	'opened' : true,
+                                	'selected' : jscdids.indexOf(datas[i].xtcdid) > 0 ? true : false
+                            	}
+                            }; 
+                            jsonarray.push(arr);
+                        }
+                    }
+                });
+                callback.call(this, jsonarray);
+             }
+         }
+     }).on('activate_node.jstree', function(obj, e) {
+     	var node = e.node;
+	    menus = {};
+	    var checked = $('#roleinput-menus').jstree('get_checked');
+    	for(var i = 0; i < node.parents.length; i++) {
+    		if(node.parents[i] === '#') {
+    			continue;
+    		}
+    		if(node.state.checked) {
+    			menus[node.parents[i]] = node.parents[i];
+    		}
+    	}
+    	for(var i = 0; i < checked.length; i++) {
+    		menus[checked[i]] = checked[i];
+    	}
+     }).on('loaded.jstree', function (event, data) {
+	     '<#list menus as l>'
+	     	menus['${l.cdid}'] = '${l.cdid}';
+	     	if(!data.instance.is_parent('${l.cdid}')) {
+	     		data.instance.check_node('${l.cdid}');
+	     	}
+	     '</#list>'
+     });
+     
+     $.validator.addMethod("checkMcExist", function(value, element, param){
+        var res = true;
+        $.ajax({
+            type:"POST",
+            async: false, 
+            url:"/admin/role.do?checkmcexist",
+            dataType : 'json',
+            data: {
+            	jsid : jsid,
+            	mc : value
+            },
+            success:function(data){
+            	if(data.title == "false") {
+            		res = false;
+            	}
+            }
+        });
+        return res;
+    },"<font color='#E47068'>该角色名称已存在</font>");
+     
+    $.validator.addMethod("checkBateSizeMAX", function(value, element, param){
+        return lenFor(value) > param ? false : true ;
+    });
+    
+	var form = $('body').find('form');
+	form.validate({
+		rules : {
+	        mc : {checkMcExist : true, checkBateSizeMAX : 32}
+        },messages : {
+            mc : {
+                checkBateSizeMAX :"<font color='#E47068'>长度最大为32个字符（一个中文算2个字符）！</font>"
+            }
+        },
+		submitHandler: function(f) {
+			var menuids = '';
+			for(var v in menus) {
+				menuids += v + ',';
+			}
+			menuids = menuids.substring(0, menuids.length - 1);
+  			$.ajax({
+				url : '/admin/role.do?save&menus=' + menuids,
+				type: 'post',
+				data : $(f).serialize(),
+				dataType : 'json',
+				success: function(res) {
+					if(res.success) {
+						roleinput_back();
+						parent.layer.msg(res.title);
+					}
+				},
+				error: function(data) {
+					parent.layer.msg(data);
+				}
+			});
+		}
+	});
+	
+	var roleinput_back = function() {
+		$(this)[0].location.href = '/admin/role.do?list';
+	};
+</script>
+</body>
+</html>

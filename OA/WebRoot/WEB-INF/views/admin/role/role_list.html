@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>角色管理</title>
+	<link rel="stylesheet" href="/common/hplus/css/bootstrap.min.css" rel="stylesheet"></link>
+	<link rel="stylesheet" href="/common/hplus/css/font-awesome.min.css" rel="stylesheet"></link>
+	<link rel="stylesheet" href="/common/hplus/css/animate.css" rel="stylesheet"></link>
+	<link rel="stylesheet" href="/common/hplus/css/style.css" rel="stylesheet"></link>
+	<link href="/common/hplus/css/bs-callout.css" rel="stylesheet">
+	
+	<script type="text/javascript" src="/common/hplus/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/common/hplus/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/common/hplus/js/content.js"></script>
+	<script type="text/javascript" src="/common/hplus/js/plugins/layer/layer.min.js"></script>
+	<script type="text/javascript" src="/template/admin/js/template-web.js"></script>
+<style type="text/css">
+	h3{
+		font-size: 16px;
+		margin-bottom: 20px;
+	}
+	.bs-callout{
+		border-left-color: #18a689;
+		margin-bottom: 5px;
+		padding-top: 11px;
+	}
+	@media (max-width: 768px) {
+		.roleList-searchInputRow{
+			width: 40vw;
+		}
+	}
+	@media (max-width: 500px) {
+		.roleList-searchInputRow{
+			width: 100%;
+		}
+	}
+</style>
+</head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content animated fadeInRight">
+		<div class="row">
+			<div class="col-sm-8 col-md-8 pull-left" style="margin-bottom: 10px;">
+				<button class="btn btn-primary" onclick="javascript:window.location.reload();">刷新</button>
+				<button class="btn btn-primary" type="button" onclick="roleList_add()">添加角色</button>
+			</div>
+			<div class="col-sm-4 col-md-4 pull-right roleList-searchInputRow" style="margin-bottom:10px;">
+				<div class="input-group">
+					<input type="text" id="roleList-keyword" class="form-control">
+					<span class="input-group-btn"><button type="button" class="btn btn-primary" onclick="roleList_search()">搜索</button> </span>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div id="roleList-data">
+				<script id="roleList-tamplate" type="text/html">
+				{{each list data}}
+					<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+		          		<div class="bs-callout bs-callout-info" style="background-color: white; padding-bottom: 0px;" >
+				           	<div class="col-sm-12">
+								<div class="row" style="margin-bottom: 5px;">
+				                	<div class="pull-left"><h3><strong>{{data.mc}}</strong></h3></div>
+									<div class="pull-right">
+										<button type="button" class="btn btn-primary" onclick="roleList_edit('{{data.jsid}}')">修改</button>
+										<button type="button" class="btn btn-primary" onclick="roleList_delete('{{data.jsid}}')">删除</button>
+									</div>
+								</div>
+				            </div>
+				    		<div class="clearfix"></div>
+						</div>
+					</div>
+				{{/each}}
+				</script>
+			</div>
+		</div>
+		<div id="roleList-pagination"></div>
+	</div>
+</body>
+<script type="text/javascript">
+	
+	var pagination = function(data, divID){
+		pageCount = data.pageCount;
+		page = data.pageIndex;
+		total = data.total-((pageCount-1)*rows);
+		var paginationHtml = '<div class="row text-center">';
+		paginationHtml += '<ul class="pagination">';
+		if ( page > 2 ){
+			paginationHtml += '<li id="1"><a href="#" onclick="pagination_selectPage(1)">首页</a></li>';
+		}
+		paginationHtml += '<li><a href="javascript:void(0)" onclick="pagination_upPage()">上一页</a></li>';
+		if ( page > 3 && page > data.pageCount - 2 ){
+			paginationHtml += '<li id="1"><a>...</a></li>';
+		}
+		for (var i = 1; i <= data.pageCount; i++){
+			if ((i >= page - 1 && i <= page + 1 )){
+				if (i == page){
+					paginationHtml += '<li id="'+ i +'" class="active"><a href="#" onclick="pagination_selectPage('+ i +')">'+ i +'</a></li>';
+				} 
+				else {
+					paginationHtml += '<li id="'+ i +'"><a href="#" onclick="pagination_selectPage('+ i +')">'+ i +'</a></li>';
+				}
+			}
+		}
+		if (page < data.pageCount && page != data.pageCount - 1 ){
+			paginationHtml += '<li><a>...</a></li>';
+		}
+		paginationHtml += '<li><a href="javascript:void(0)" onclick="pagination_downPage()">下一页</a></li>';
+		paginationHtml += '</ul></div>';
+		document.getElementById( divID ).innerHTML = paginationHtml;	
+	}
+	
+	var pagination_selectPage = function(pageIndex){
+    	page = pageIndex;
+    	roleList_loadData();
+    	$("html, body").animate({scrollTop : 0}, 100);
+   	}
+
+    var pagination_upPage = function(){
+    	if(page > 1){
+    		page--;
+    		roleList_loadData();
+    		$("html, body").animate({scrollTop : 0}, 100);
+    	}
+    }
+
+    var pagination_downPage = function(){
+    	if(page < pageCount){
+    		page++;
+    		roleList_loadData();
+    		$("html, body").animate({scrollTop : 0}, 100);
+    	}
+    }
+
+	var page = 1, rows = 10, total = 0;
+	var roleList_loadData = function(keyword) {
+		$.ajax({
+			url : '/admin/role.do?data',
+			type: 'POST',
+			dataType : 'json',
+			data : {
+				page : page,
+				rows : rows,
+				keyword : keyword
+			},
+			success : function(data) {
+				$('#roleList-data').html(template('roleList-tamplate', {list : data.rows}));
+				pagination(data, 'roleList-pagination');
+			}
+		});
+	};
+	roleList_loadData('');
+	
+	var roleList_search = function(){
+		$("#roleList-data").html("");
+	  	roleList_loadData($("#roleList-keyword").val());
+    }
+	
+	var roleList_add = function() {
+		$(this)[0].location.href = 'role.do?add';
+	};
+	
+	var roleList_edit = function(value) {
+		$(this)[0].location.href = 'role.do?edit&jsid=' + value;
+	};
+	
+	var roleList_delete = function(value) {
+		var content = '您确定要删除该角色数据吗？';
+		$.ajax({
+			url : '/admin/role.do?checkjsused',
+			type: 'POST',
+			dataType : 'json',
+			data : {
+				jsid : value
+			},
+			success : function(data) {
+				if(data.title == "false"){
+					content = '有用户正在使用该角色，您确定要删除该角色数据吗？';
+				}
+				var index = parent.layer.open({
+					title: '提示',
+					icon: 0,
+					btn: ['确定', '取消'],
+					content: content,
+					cancel: function() {},
+					yes: function() {
+						var uploadLoad =  parent.layer.load();
+						$.ajax({
+							url : '/admin/role.do?delete',
+							type: 'post',
+							data : {jsid : value},
+							dataType : 'json',
+							success : function(res) {
+								parent.layer.close(uploadLoad);
+								if(res.success) {
+									if (total == 1 && page > 1){
+										page--;
+									}
+									roleList_loadData($("#roleList-keyword").val());
+									parent.layer.close(index);
+									parent.layer.msg(res.title);
+								}
+							}
+						});				
+					}
+				});
+			}
+		});
+	};
+</script>
+</html>
