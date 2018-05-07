@@ -16,10 +16,9 @@ import com.tlb.admin.service.RoleService;
 import com.tlb.common.PageParam;
 import com.tlb.entity.TTlbJs;
 
-
 @Controller
 @RequestMapping(value = "/admin/role.do")
-public class RoleController{
+public class RoleController {
 
 	@Resource
 	private RoleService roleService;

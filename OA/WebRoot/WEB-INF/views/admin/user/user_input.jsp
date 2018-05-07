@@ -16,16 +16,16 @@
     <script src="/views/common/layer/layer.js"></script>
     <script src="/views/common/jquery.validate.min.js"></script>
     <style type="text/css">
-/*     input + .error{ */
-/* 		display: none !important; */
-/* 	} */
-	label.error{
-		display: none !important;
-	}
-	.am-ucheck-icons{
-		height: 50px;
-		line-height: 40px;
-	}
+	    /* input + .error{ 
+	 		display: none !important; 
+	 	} */
+		label.error{
+			display: none !important;
+		}
+		.am-ucheck-icons{
+			height: 50px;
+			line-height: 40px;
+		}
     </style>
 </head>
 <body data-type="generalComponents">

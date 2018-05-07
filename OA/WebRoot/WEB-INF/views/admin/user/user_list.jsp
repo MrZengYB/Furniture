@@ -1,5 +1,5 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
-<!DOCTYPE HTML>
+<!doctype html>
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -9,15 +9,16 @@
 	<link rel="stylesheet" href="/views/admin/homePage/css/admin.css">
 	<link rel="stylesheet" href="/views/admin/homePage/css/app.css">
     <link rel="stylesheet" href="/views/common/animate.min.css">
+    <link rel="stylesheet" href="/views/common/public.css">
     
-    <script src="/views/common/jquery-3.2.1.min.js"></script>
+    <script src="/views/common/jquery-3.2.1.min.js"></script> 
     <script src="/views/admin/homePage/js/amazeui.min.js"></script>
     <script src="/views/common/template-web.js"></script>
     <script src="/views/common/layer/layer.js"></script>
     <script src="/views/common/until.js"></script>
 </head>
 <body>
-	<div class="am-panel am-panel-default">
+	<div class="am-panel am-panel-default" style="border: none;margin:0px;box-shadow:none;">
   		<div class="am-panel-hd">用户管理</div>
   		<div class="am-panel-bd">
   			<div class="am-g">
@@ -35,7 +36,7 @@
   			<div class="am-g" id="userList-user-content">
   				<script type="text/html" id="userList-user-template">
 				{{each users}}
-  				<div class="am-u-sm-6" style="margin-top: 10px;padding-left:0px;">
+  				<div class="am-u-sm-6" style="margin-top: 10px;padding-left:0px;float:left;">
 	  				<div class="tpl-content-scope">
 		                <div class="note note-info">
 		                	<div class="am-g">
@@ -69,12 +70,13 @@
 	  			{{/each}}
 				</script>
   			</div>
+  			<div class="am-g" id="public_pagination"></div>
   		</div>
 	</div>
 </body>
 <script type="text/javascript">
 	
-	var page = 1, rows = 10;
+	var page = 1, rows = 10, total = 0, pageCount;
 	var userList_loadData = function() {
 		$.ajax({
 			url:'/admin/user.do?datas', 
@@ -88,10 +90,60 @@
 			success: function(res) {
 				var html = template('userList-user-template', {users: res.rows});
 				$('#userList-user-content').html(html);
+				pagination(res, 'public_pagination');
 			}
-		});
+		}); 
 	};
 	userList_loadData();
+	
+	var pagination = function(data, divID){
+		pageCount = data.pageCount;
+		page = data.pageIndex;
+		total = data.total - ((pageCount-1) * rows);
+		var paginationHtml = '<ul class="am-pagination am-pagination-centered">';
+		if ( page > 2 ) paginationHtml += '<li class="page" data-page="1"><a href="javascript:pagination_selectPage(1);">首页</a></li>';
+		if(page == 1) paginationHtml += '<li class="am-disabled"><a href="javascript:pagination_upPage();">&laquo;</a></li>';
+		else paginationHtml += '<li><a href="javascript:pagination_upPage();">&laquo;</a></li>';
+		if ( page > 3 && page > data.pageCount - 2 ){
+			paginationHtml += '<li><span>...</span></li>';
+		}
+		for (var i = 1; i <= data.pageCount; i++){
+			if ((i >= page - 2 && i <= page + 2 )){
+				if (i == page){
+					paginationHtml += '<li class="am-active"><a href="javascript:pagination_selectPage('+ i +');">'+ i +'</a></li>';
+				} else {
+					paginationHtml += '<li><a href="javascript:pagination_selectPage('+ i +');">'+ i +'</a></li>';
+				}
+			}
+		}
+		if (page < data.pageCount && page != data.pageCount - 1 ) paginationHtml += '<li><span>...</span></li>';
+		if(page == pageCount) paginationHtml += '<li class="am-disabled"><a href="javascript:pagination_downPage();">&raquo;</a></li>';
+		else paginationHtml += '<li><a href="javascript:pagination_downPage();">&raquo;</a></li>';
+		paginationHtml += '</ul>';
+		document.getElementById(divID).innerHTML = paginationHtml;
+	};
+
+	var pagination_selectPage = function(pageIndex){
+		page = pageIndex;
+		userList_loadData();
+		$("html, body").animate({scrollTop : 0}, 100);
+	};
+
+	var pagination_upPage = function(){
+		if(page > 1){
+			page--;
+			userList_loadData();
+			$("html, body").animate({scrollTop : 0}, 100);
+		}
+	};
+
+	var pagination_downPage = function(){
+		if(page < pageCount){
+			page++;
+			userList_loadData();
+			$("html, body").animate({scrollTop : 0}, 100);
+		}
+	};
 	
 	var userList_add = function() {
 		$(this)[0].location.href = 'user.do?add';
@@ -122,7 +174,7 @@
 					dataType : 'json',
 					success : function(res) {
 						if(res.success) {
-							$('#userList-grid').bootstrapTable('refresh');
+							userList_loadData();
 							layer.close(index);
 							layer.msg(res.title);
 						}

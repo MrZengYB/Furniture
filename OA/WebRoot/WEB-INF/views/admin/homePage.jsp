@@ -37,6 +37,12 @@
 		<div class="am-collapse am-topbar-collapse" id="topbar-collapse">
 			<ul class="am-nav am-nav-pills am-topbar-nav am-topbar-right admin-header-list tpl-header-list">
 				<li class="am-dropdown" data-am-dropdown data-am-dropdown-toggle>
+					<a class="am-dropdown-toggle tpl-header-list-link" href="javascript:showChatOnline();"> 
+						<span class="am-icon-bell-o"></span> 聊天室
+						<span class="am-badge tpl-badge-success am-round">0</span>
+					</a>
+				</li>
+				<li class="am-dropdown" data-am-dropdown data-am-dropdown-toggle>
 					<a class="am-dropdown-toggle tpl-header-list-link" href="javascript:;"> 
 						<span class="am-icon-bell-o"></span> 提醒 
 						<span class="am-badge tpl-badge-success am-round">5</span>
@@ -270,6 +276,12 @@
         $('.tpl-left-nav-link-list').eq(index).siblings('.tpl-left-nav-sub-menu').slideToggle(80).end().find('.tpl-left-nav-more-ico').toggleClass('tpl-left-nav-more-ico-rotate');
 	}
 	
+	var showChatOnline = function(){
+		layer.open({
+		  	type: 2, 
+		    content: ['admin/charOnline', 'no']
+		}); 
+	}
 </script>
 <script src="/views/admin/homePage/js/amazeui.min.js"></script>
 <script src="/views/admin/homePage/js/iscroll.js"></script>

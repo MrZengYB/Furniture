@@ -19,7 +19,7 @@ public class TTlbJs extends BaseEntity {
 
 	private String mc; // 名称
 
-	private Integer sfxs; // 是否显示
+	private Boolean sfxs; // 是否显示
 
 	@Id
 	@Column(length = 32, nullable = true)
@@ -42,12 +42,11 @@ public class TTlbJs extends BaseEntity {
 		this.mc = mc;
 	}
 
-	@Column(columnDefinition = "INT default 0")
-	public Integer getSfxs() {
+	public Boolean getSfxs() {
 		return sfxs;
 	}
 
-	public void setSfxs(Integer sfxs) {
+	public void setSfxs(Boolean sfxs) {
 		this.sfxs = sfxs;
 	}
 }

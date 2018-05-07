@@ -5,7 +5,6 @@ import java.util.Map;
 import com.tlb.common.PageParam;
 import com.tlb.entity.TTlbJs;
 
-
 public interface RoleService {
 	
 	/**

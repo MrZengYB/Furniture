@@ -150,3 +150,24 @@ var delCookie = function(name) {
 	if (cval != null)
 		document.cookie = name + "=" + cval + ";expires=" + exp.toGMTString();
 }
+
+var goToTop = function(selection, min_height){
+	var toTopHtml = "<div class="+selection+" style='max-width:60px;position:fixed;right:2vw;bottom:1vw;cursor:pointer;'>"
+						+'<a href="#top" title="回到顶部" class="am-icon-btn am-icon-arrow-up am-active" id="amz-go-top"></a>'
+					+"</div>";
+	$(document.body).append(toTopHtml);
+	$("."+selection).hide();
+    $("."+selection).click(function(){
+        $("html, body").animate({scrollTop : 0}, 600);
+    });
+    min_height ? min_height = min_height : min_height = 600;
+    $(window).scroll(function(){
+        var s = $(window).scrollTop();
+        if( s > min_height){
+            $("."+selection).fadeIn(500);
+        }else{
+            $("."+selection).fadeOut(500);
+        };
+    });
+};
+goToTop("goToTop");

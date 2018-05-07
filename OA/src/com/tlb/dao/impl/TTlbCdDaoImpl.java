@@ -15,4 +15,8 @@ public class TTlbCdDaoImpl extends BaseDaoImpl<TTlbCd> implements TTlbCdDao{
 		return this.getForMapBySql("select * from t_tlb_cd where sfxs = 1 and sfsc = 0 ");
 	}
 
+	public TTlbCd getTTlbCd(String cdid) {
+		return this.get(TTlbCd.class, cdid);
+	}
+
 }
